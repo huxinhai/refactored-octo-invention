@@ -8,12 +8,15 @@
  */
 
 import { presetWind3 } from '@unocss/preset-wind3'
-import {defineConfig, presetAttributify} from 'unocss'
+import { defineConfig, presetAttributify } from 'unocss'
 import presetRemToPx from '@unocss/preset-rem-to-px'
 // import transformerDirectives from '@unocss/transformer-directives'
 // import transformerDirectives from '@unocss/transformer-directives'
 
 export default defineConfig({
-  //@ts-ignore
-  presets: [presetAttributify(),presetWind3(), presetRemToPx()],
+  presets: [
+    presetAttributify(),
+    presetWind3(),
+    presetRemToPx({ baseFontSize: 4 })
+  ]
 })

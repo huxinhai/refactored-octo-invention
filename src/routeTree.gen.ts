@@ -8,24 +8,49 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as YourPlanImport } from './routes/YourPlan'
 import { Route as IndexImport } from './routes/index'
+import { Route as MLayoutImport } from './routes/m/_layout'
+import { Route as MLayoutHomeImport } from './routes/m/_layout/home'
+
+// Create Virtual Routes
+
+const MImport = createFileRoute('/m')()
 
 // Create/Update Routes
+
+const MRoute = MImport.update({
+  id: '/m',
+  path: '/m',
+  getParentRoute: () => rootRoute
+} as any)
 
 const YourPlanRoute = YourPlanImport.update({
   id: '/YourPlan',
   path: '/YourPlan',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRoute
 } as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRoute
+} as any)
+
+const MLayoutRoute = MLayoutImport.update({
+  id: '/_layout',
+  getParentRoute: () => MRoute
+} as any)
+
+const MLayoutHomeRoute = MLayoutHomeImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => MLayoutRoute
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -46,44 +71,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof YourPlanImport
       parentRoute: typeof rootRoute
     }
+    '/m': {
+      id: '/m'
+      path: '/m'
+      fullPath: '/m'
+      preLoaderRoute: typeof MImport
+      parentRoute: typeof rootRoute
+    }
+    '/m/_layout': {
+      id: '/m/_layout'
+      path: '/m'
+      fullPath: '/m'
+      preLoaderRoute: typeof MLayoutImport
+      parentRoute: typeof MRoute
+    }
+    '/m/_layout/home': {
+      id: '/m/_layout/home'
+      path: '/home'
+      fullPath: '/m/home'
+      preLoaderRoute: typeof MLayoutHomeImport
+      parentRoute: typeof MLayoutImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface MLayoutRouteChildren {
+  MLayoutHomeRoute: typeof MLayoutHomeRoute
+}
+
+const MLayoutRouteChildren: MLayoutRouteChildren = {
+  MLayoutHomeRoute: MLayoutHomeRoute
+}
+
+const MLayoutRouteWithChildren =
+  MLayoutRoute._addFileChildren(MLayoutRouteChildren)
+
+interface MRouteChildren {
+  MLayoutRoute: typeof MLayoutRouteWithChildren
+}
+
+const MRouteChildren: MRouteChildren = {
+  MLayoutRoute: MLayoutRouteWithChildren
+}
+
+const MRouteWithChildren = MRoute._addFileChildren(MRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/YourPlan': typeof YourPlanRoute
+  '/m': typeof MLayoutRouteWithChildren
+  '/m/home': typeof MLayoutHomeRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/YourPlan': typeof YourPlanRoute
+  '/m': typeof MLayoutRouteWithChildren
+  '/m/home': typeof MLayoutHomeRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/YourPlan': typeof YourPlanRoute
+  '/m': typeof MRouteWithChildren
+  '/m/_layout': typeof MLayoutRouteWithChildren
+  '/m/_layout/home': typeof MLayoutHomeRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/YourPlan'
+  fullPaths: '/' | '/YourPlan' | '/m' | '/m/home'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/YourPlan'
-  id: '__root__' | '/' | '/YourPlan'
+  to: '/' | '/YourPlan' | '/m' | '/m/home'
+  id: '__root__' | '/' | '/YourPlan' | '/m' | '/m/_layout' | '/m/_layout/home'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   YourPlanRoute: typeof YourPlanRoute
+  MRoute: typeof MRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   YourPlanRoute: YourPlanRoute,
+  MRoute: MRouteWithChildren
 }
 
 export const routeTree = rootRoute
@@ -97,7 +173,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/YourPlan"
+        "/YourPlan",
+        "/m"
       ]
     },
     "/": {
@@ -105,6 +182,23 @@ export const routeTree = rootRoute
     },
     "/YourPlan": {
       "filePath": "YourPlan.tsx"
+    },
+    "/m": {
+      "filePath": "m",
+      "children": [
+        "/m/_layout"
+      ]
+    },
+    "/m/_layout": {
+      "filePath": "m/_layout.tsx",
+      "parent": "/m",
+      "children": [
+        "/m/_layout/home"
+      ]
+    },
+    "/m/_layout/home": {
+      "filePath": "m/_layout/home.tsx",
+      "parent": "/m/_layout"
     }
   }
 }
